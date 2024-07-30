@@ -1,0 +1,14 @@
+100  .TITLE "Hello World! Demo"
+110  *=$3000
+120  .OPT OBJ
+130 ;
+140 STRING .SBYTE "Hello World!"
+150 ;
+160 START LDY #0      ;Load Y Reg with 0
+170 LOOP LDA STRING,Y ;Loop thru text
+180  STA ($58),Y      ;Put char in scr mem
+190  CPY #$0B         ;Last char?
+200  BEQ END          ;Yes, branch to END
+210  INY              ;Else incr Y by 1
+220  JMP LOOP         ;Go back to LOOP
+230 END RTS           ;All done!

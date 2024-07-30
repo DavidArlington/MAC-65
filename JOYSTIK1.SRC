@@ -1,0 +1,29 @@
+100  .TITLE "Joystick Demo Part 1"
+110  *=$5000
+120  .OPT OBJ
+130 ;
+140 SAVMSC=$58
+150 STICK0=$278
+160 ;
+170 ; Main Routine starts here
+180 ;
+190 START LDX #$0C      ;Or #$00 or #$18
+200  JMP SCRPRT
+210 ;
+220 ; Data for printing on screen
+230 ;
+240 CENTER "Stick Center"
+250 UP "Stick Up    "   ;Pad to 12 chars
+260 DOWN "Stick Down  " ; Ditto
+270 ;
+280 ; SCRPRT Routine
+290 ; 
+300 SCRPRT LDY #$00     ;load Y Reg with 0
+310 LOOP LDA CENTER,X   ;Index text data w/X
+320  STA (SAVMSC),Y     ;index scrn mem w/Y
+330  CPY #$0B           ;Last char?
+340  BEQ                ;Yes, go to end
+350  INY                ;No, increment Y
+360  INX                ;and incremement X
+370  JMP LOOP           ;and jump to LOOP
+380 END RTS             ;All done!
