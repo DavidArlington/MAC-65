@@ -1,0 +1,55 @@
+100  .TITLE "Joystick Demo Part 2"
+110  *=$5000
+120  .OPT OBJ
+130 ;
+140 SAVMSC=$58          ;screen mem addr
+150 STICK0=$278         ;joystick 0 addr
+160 STRIG0=$284         ;trigger 0 addr
+170 ;
+180 ; Data for printing on screen
+190 ;
+200 CENTER "Stick Center"
+210 UP "Stick Up    "   ;Pad to 12 chars
+220 DOWN "Stick Down  " ; Ditto
+230 ;
+240 ; Main Routine starts here
+250 ;
+260 START LDA STICK0    ;get joysitck pos
+270  SEC                ;set Carry flag
+280  ROR A              ;rotate 1st acc bit
+290  BCC STKUP          ;was it 0? Stick up!
+300  ROR A              ;no? Check next bit
+310  BCC STKDWN         ;was it 0? Stick down!
+320 STKCTR LDX #$00     ;no again? Stick center
+330  JSR SCRPRT         ;scrn print sub routine
+340  JMP INFIN          ;check if exit
+350 STKUP LDX #$0C      ;set 2nd string pos
+360  JSR SCRPRT         ;print stick up
+370  JMP INFIN
+380 STKDWN LDX #$18     ;set 3rd string pos
+390  JSR SCRPRT         ;print stick down
+400  JMP INFIN
+410 ;
+420 ; Program exit routine if trigger pressed
+430 ;
+440 INFIN LDA STRIG0    ;get trigger value
+450  BEQ EXIT           ;if zero, pressed, exit
+460  JMP START          ;not pressed, start over
+470 EXIT RTS            ;And we're out of here!
+480 ;
+490 ; SCRPRT Routine
+500 ; 
+510 SCRPRT LDY #$00     ;load Y Reg with 0
+520 LOOP LDA CENTER,X   ;Index text data w/X
+530  STA (SAVMSC),Y     ;index scrn mem w/Y
+540  CPY #$0B           ;Last char?
+550  BEQ                ;Yes, go to end
+560  INY                ;No, increment Y
+570  INX                ;and incremement X
+580  JMP LOOP           ;and jump to LOOP
+590 END RTS             ;Go back to main
+600 ;
+610 ; Make our program runnable from DOS
+620;
+630  *=$02E0            ;Atari RUNADR
+640  .WORD START        ;give it START addr
