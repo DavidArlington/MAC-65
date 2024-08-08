@@ -12,9 +12,9 @@
 210 ;
 220 ; Data for printing on screen
 230 ;
-240 CENTER "Stick Center"
-250 UP "Stick Up    "   ;Pad to 12 chars
-260 DOWN "Stick Down  " ; Ditto
+240 CENTER .SBYTE "Stick Center"
+250 UP .SBYTE "Stick Up    "   ;Pad to 12 chars
+260 DOWN .SBYTE "Stick Down  " ; Ditto
 270 ;
 280 ; SCRPRT Routine
 290 ; 
