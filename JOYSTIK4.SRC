@@ -8,9 +8,9 @@
 170 ;
 180 ; Data for printing on screen
 190 ;
-200 CENTER "Stick Center"
-210 UP "Stick Up    "   ;Pad to 12 chars
-220 DOWN "Stick Down  " ; Ditto
+200 CENTER .SBYTE "Stick Center"
+210 UP .SBYTE "Stick Up    "   ;Pad to 12 chars
+220 DOWN .SBYTE "Stick Down  " ; Ditto
 230 ;
 240 ; Main Routine starts here
 250 ;
@@ -43,13 +43,13 @@
 520 LOOP LDA CENTER,X   ;Index text data w/X
 530  STA (SAVMSC),Y     ;index scrn mem w/Y
 540  CPY #$0B           ;Last char?
-550  BEQ                ;Yes, go to end
+550  BEQ END            ;Yes, go to end
 560  INY                ;No, increment Y
 570  INX                ;and incremement X
 580  JMP LOOP           ;and jump to LOOP
 590 END RTS             ;Go back to main
 600 ;
 610 ; Make our program runnable from DOS
-620;
+620 ;
 630  *=$02E0            ;Atari RUNADR
 640  .WORD START        ;give it START addr
