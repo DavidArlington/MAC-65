@@ -1,0 +1,111 @@
+100  .TITLE "DOGPARK DEMO 1"
+110  *=$4000
+120  .OPT OBJ
+130 ;
+140 ; PROGRAM END CONTROL
+150 ;
+160 STRIG0 = $0284   ;Trigger 0
+170 CONSOL = $D01F   ;Console keys
+180 START .BYTE $06  ;START button
+190 ;
+200 ; SCREEN EQUATES AND VARS
+210 ;
+220 COLOR0 = $02C4   ;Color Register 0
+230 COLCRS = $55     ;Cursor Column
+240 ROWCRS = $54     ;Cursor Row 
+250 ;
+260 HUE .DS 1        ;SETCOLOR Hue 
+270 LUMNCE .DS 1     ;SETCOLOR Luminance
+280 DOG .BYTE $3E    ;For now, the ">" char
+290 COLOR .DS 1      ;For COLOR statement
+300 ;
+310 ; IOCB EQUATES
+320 ;
+330 CIOV = $E456     ; OS Input/Output subroutine
+340 ;
+350 ICCOM = $0342    ;IOCB Command byte 
+350 ICBAL = $0344    ;IOCB Buffer Address Low byte
+360 ICBAH = $0345    ;IOCB Buffer Address High byte 
+370 ICAX1 = $034A    ;IOCB Auxillary byte 1
+380 ICAX2 = $034B    ;IOCB Auxillary byte 2
+390 ;
+400 OPEN .BYTE $03   ;Commands for ICCOM byte
+410 CLOSE .BYTE $0C
+420 PUTCHR .BYTE $0B
+430 ;
+440 BEGIN
+450 CLSSCR LDX #$60  ;IOCB Channel 6 for screen 
+460  LDA CLOSE       ;IOCB Close command 
+470  STA ICCOM,X     ;Store at channel 6 command byte
+480  JSR CIOV        ;Close the screen!
+490 ;
+500 OPNSCR LDX #$60  ;Channel 6, get used to this one!
+510  LDA OPEN        ;IOCB Open Command
+520  STA ICCOM,X     ;Store in command byte 
+530  LDA #<SCREEN    ;low byte of address of "S:" string
+540  STA ICBAL,X     ;store at buffer addr low byte 
+540  LDA #>SCREEN    ;high byte of addr for "S:" string 
+550  STA ICBAH,X     ;store at buffer addre high byte 
+560  LDA #$0C        ;8=Write mode, 4=Read mode, total=12
+570  STA ICAX1,X     ;Aux byte 1 controls R/W mode and no text window 
+580  LDA #$01        ;GRAPHICS 1 in BASIC/Action! 
+590  STA ICAX2       ;Aux byte 2 holds GRAPHICS mode 0-11
+600  JSR CIOV        ;All set up! Call OS Open Channel #6!
+610 ;
+620 SETBGC           ;Set background color
+630  LDX #$04        ;Color Reg.4, background color GR.1
+640  LDA #$0C        ;Hue 12 - Green
+650  STA HUE         ;Save in our var 
+660  LDA #$0F        ;Luminance 15 - Bright!
+670  STA LUMNCE      ;Save in our var
+680  JSR SETCLR      ;Call Setcolor subroutine to set bg Color
+690 ;
+700 SETCHC           ;Set character color 
+710  LDX #$00        ;Color Reg.0, default char color GR.1 
+720  LDA #$00        ;Hue and Luminance 0 - Darkest Black
+730  STA HUE         ;set hue var
+740  STA LUMNCE      ;set luminance var same value
+750  JSR SETCLR      ;Call Setcolor subroutine to set char color
+760 ;
+770 PLOTCH           ;Plot character on screen at column 5, row 3 
+780  LDA #$05        ;column 5
+790  STA COLCRS      ;store in column cursor position
+800  LDA #$03        ;row 3
+810  STA ROWCRS      ;store in row cursor position
+820  JSR PLOT        ;Call our IOCB Plot subroutine
+830  JMP INFIN       ;hang there til program exit
+840 ;
+1000 SETCLR          ;SETCOLOR subroutine 
+1010  LDA HUE        ;get HUE value from our var 
+1020  ASL A          ;Start shifting bytes left 
+1030  ASL A          ;Do it 4 times
+1040  ASL A          ;to move low byte to high byte in accumulator
+1050  ASL A          ;AKA multiply by 16
+1060  ORA LUMNCE     ;Mush high byte hue with low byte luminanace
+1070  STA COLOR0,X   ;store at color reg.0 w/X offset, color0 to color4
+1080  RTS            ;return from subroutine 
+1090 ;
+1500 PLOT            ;IOCB OS PLOT subroutine
+1510  LDX #$60       ;Channel 6 for SCREEN
+1520  LDA PUTCHR     ;Put Character IOCB Command
+1530  STA ICCOM,X    ;load IOCB Command byte 
+1540  LDA #$00       ;Special use for PLOT for buffer addr. lo and high
+1550  STA ICBAL,X    ;Zero out buffer Address
+1560  STA ICBAH,X    ;Because char to plot is going to be in accumulator
+1570  LDA COLOR      ;Same as COLOR X in BASIC/Action! before a PLOT 
+1580  JSR CIOV       ;Let CIOV subroutine put char on screen 
+1590  RTS            ;return from subroutine
+1600 ;
+2000 INFIN           ;Infinite loop till trigger/START key
+2010  LDA STRIG0     ;Value of trigger 0
+2020  BEQ END        ;End program if equal 0 AKA pressed
+2030  LDA CONSOL     ;value of console keys being pressed
+2040  CMP START      ;START key pressed?
+2050  BEQ END        ;If so, end program 
+2060  JMP INFIN      ;otherwise, loop
+2070 END RTS         ;program ends
+2080 SCREEN .BYTE "S:", $9B  ; "S:" string with carriage return for IOCB
+2090  *=$02E0
+2100  .WORD BEGIN    ;To run from DOS, note change to BEGIN not START!
+
+
