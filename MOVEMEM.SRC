@@ -1,0 +1,45 @@
+100  .TITLE "Move Memory Demo"
+110  .OPT OBJ
+120  *=$D4
+130 SRCADR .DS 2
+140 DSTADR .DS 2
+150 ;
+160  *=$4000
+170 ;
+180 FROM = $E200
+190 TO = $5000
+200 SIZE = $0109
+210 ;
+220 BEGIN LDA #<FROM
+230  STA SRCADR
+240  LDA #>FROM
+250  STA SRCADR+1
+260  LDA #<TO
+270  STA DSTADR
+280  LDA #>TO
+290  STA DSTADR+1
+300 ;
+310 MOVMEM LDX SIZE+1
+320  BEQ MVRMDR  ; Size hi byte zero just move remainder
+330  LDY #$00    ; otherwise init Y reg, move a page
+340 ;
+350 MVPAGE LDA (SRCADR),Y ;Indirect indexed addressing
+360  STA (DSTADR),Y       ;address + y reg = actual address
+370  INY
+380  BNE MVPAGE ;If Y not zero, still have more to copy
+390  INC SRCADR+1 ;If Y = 0, whole page copied
+400  INC DSTADR+1 ;so increment hi bytes by one (new page)
+410  DEX          ;X is num of pages to copy, reduce by 1
+420  BNE MVPAGE   ;If X not zero, copy another page
+430 ;
+440 MVRMDR LDA SIZE ;get size of remaining bytes in lo byte
+450  BEQ MVDONE     ;No more? Go to Done
+460  LDY #$00
+470 MOVE LDA (SRCADR),Y
+480  STA (DSTADR),Y
+490  INY
+500  CPY SIZE       ;does Y now equal size lo byte?
+510  BEQ MVDONE     ;if so, we're Done
+520  JMP MOVE       ;otherwise copy next byte
+530 ;
+540 MVDONE RTS 
