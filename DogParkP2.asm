@@ -21,18 +21,11 @@
 2190 ;
 2195  JSR SETCHR
 2198 ;
-2200  LDX #$04        ;Color reg.4, background
-2210  LDA #$0C        ;Green
-2220  STA HUE
-2230  LDA #$0F        ;Bright!
-2240  STA LUMNCE
-2250  JSR SETCLR
+2200  SETCOLOR 4,12,15 ;Color reg.4, bright green background
+2210 ;
+2220  SETCOLOR 2,3,2   ;Color reg.2, new character brown
 2260 ;
-2270  LDX #$00        ;Color reg.0, character
-2280  LDA #$00        ;Darkest black
-2290  STA HUE
-2300  STA LUMNCE
-2310  JSR SETCLR
+2270  SETCOLOR 0,0,0   ;Color reg.0, dog character black
 2320 ;
 2330  LDA DOGRGT      ;Initialize dog facing right
 2340  STA DOG
@@ -150,16 +143,10 @@
 4520  LDA RAMSET+1
 4530  STA DSTADR+1
 4540 ;
-4550  LDA #$00        ;ROM Char set at $E000 is our source
-4560  STA SRCADR      ;Address
-4570  LDA #$E0
-4580  STA SRCADR+1
+4550  ASSIGNWORD $E000,SRCADR  ;ROM Char set at $E000 is our source
 4590 ;
-4600  LDA #$00        ;size we want to copy is 2 pages of
-4610  STA SIZE        ;character set data for GR.1 mode
-4620  LDA #$02   
-4630  STA SIZE+1
-4640 ;
+4600  ASSIGNWORD $0200,SIZE    ;size we want to copy is 2 pages
+640 ;
 4650  JSR MOVMEM      ;copy the 2 pages to our RAMSET!
 4660 ;
 4670  LDA #[$1C*$08]  ;the destination for our redefined
@@ -167,15 +154,9 @@
 4690  LDA RAMSET+1    ;into our RAMSET = $1C * $08
 4700  STA DSTADR+1    ;high byte is RAMSET high byte
 4710 ;
-4720  LDA # <DOGSHPS  ;Address of dog shapes data lo byte
-4730  STA SRCADR      ;is our new data source
-4740  LDA # >DOGSHPS  ;Address of dog shapes data hi byte
-4750  STA SRCADR+1
+4720  ASSIGNWORD DGSHPS,SRCADR ;Address of dog shapes to copy
 4760 ;
-4770  LDA #$18        ;size is 24 bytes of dog data
-4780  STA SIZE
-4790  LDA #$00
-4800  STA SIZE+1
+4770  ASSIGNWORD $18,SIZE ;size is 24 bytes of dog data
 4810 ;
 4820  JSR MOVMEM      ;copy dog shapes to our RAMSET
 4830 ;
