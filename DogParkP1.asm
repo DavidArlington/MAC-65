@@ -1,5 +1,6 @@
 100  .TITLE "Dog Park Demo Part 1"
 110  .OPTOBJ
+115  .INCLUDE #D2:MACROS.M65
 120 ;
 130 ; General System Equates
 140 ;
@@ -18,8 +19,6 @@
 270  *= $D4
 280 ;
 290 COLOR .DS 1
-300 HUE .DS 1
-310 LUMNCE .DS 1
 320 ;
 330 DOG .DS 1
 340 SRCADR .DS 2
